@@ -1,0 +1,117 @@
+---
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata: 
+    name: api-server
+    labels: 
+      app: api-server
+    namespace: kuber-ez
+  spec: 
+    selector: 
+      matchLabels: 
+        app: api-server
+    replicas: 1
+    template: 
+      metadata: 
+        labels: 
+          app: api-server
+      spec: 
+        containers: 
+          - name: api-server
+            image: ohsy818/api-server:latest
+            ports: 
+              - containerPort: 8080
+---
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata: 
+    name: front-end
+    labels: 
+      app: front-end
+    namespace: kuber-ez
+  spec: 
+    selector: 
+      matchLabels: 
+        app: front-end
+    replicas: 1
+    template: 
+      metadata: 
+        labels: 
+          app: front-end
+      spec: 
+        containers: 
+          - name: front-end
+            image: ohsy818/kuber-ez:latest
+            ports: 
+              - containerPort: 8080
+---
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata: 
+    name: webkubectl
+    labels: 
+      app: webkubectl
+    namespace: kuber-ez
+  spec: 
+    selector: 
+      matchLabels: 
+        app: webkubectl
+    replicas: 1
+    template: 
+      metadata: 
+        labels: 
+          app: webkubectl
+      spec: 
+        containers: 
+          - name: webkubectl
+            image: gcr.io/eventstorming-tool/webkubectl
+            securityContext: 
+              privileged: true
+            ports: 
+              - containerPort: 8080
+---
+  apiVersion: v1
+  kind: Service
+  metadata: 
+    name: front-end
+    labels: 
+      app: front-end
+    namespace: kuber-ez
+  spec: 
+    ports: 
+      - port: 8081
+        targetPort: 8080
+    selector: 
+      app: front-end
+    type: NodePort
+    nodePort: 30000
+---
+  apiVersion: v1
+  kind: Service
+  metadata: 
+    name: k8s-tunneling-server
+    labels: 
+      app: k8s-tunneling-server
+    namespace: kuber-ez
+  spec: 
+    ports: 
+      - port: 8080
+        targetPort: 8080
+    selector: 
+      app: api-server
+    type: NodePort
+---
+  apiVersion: v1
+  kind: Service
+  metadata: 
+    name: webkubectl
+    labels: 
+      app: webkubectl
+    namespace: kuber-ez
+  spec: 
+    ports: 
+      - port: 8082
+        targetPort: 8080
+    selector: 
+      app: webkubectl
+    type: NodePort
